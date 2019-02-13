@@ -8,3 +8,12 @@ Resources:
         Type: AWS::ECS::Cluster
         Properties:
             ClusterName: TerraCluster
+    TerraECSService:
+        Type: AWS::ECS::Service
+        Properties:
+            TaskDefinition: !REF TerraECSTaskDefinition
+    TerraECSTaskDefinition:
+        Type: AWS::ECS::TaskDefinition
+        Properties:
+            ContainerDefinitions:
+                
