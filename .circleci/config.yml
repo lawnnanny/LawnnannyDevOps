@@ -6,25 +6,10 @@ jobs:
           - image: docker:17.05.0-ce-git
       steps:
           - run:
-              name: Query List Of Stacks For Terra Stack
-              command: |
-                  list=$(aws cloudformation list-stacks \
-                --stack-status-filter "CREATE_IN_PROGRESS" "CREATE_COMPLETE" \
-                --query 'StackSummaries[?StackName==`TerraStack`]')
-          - run:
-              name: Check If The List Of Stacks Is Empty
-              command: |
-                  if [ "$list" = "[]" ]; then \
-                  then \
-                  changeSetOperation="CREATE" \
-                  else \
-                  changeSetOperation="UPDATE" \
-                  fi
-          - run:
               name: Create Change Set
               command: |
-                aws cloudformation create-change-set --stack-name TerraStack \
-                    --template-body cloudformation.yaml --change-set-type $changeSetOperation
+                aws cloudformation deploy --stack-name TerraStack \
+                    --template-file cloudformation.yaml --change-set-type $changeSetOperation
 
   deploy_react_to_cloud_front:
       working_directory: /app
@@ -117,7 +102,6 @@ workflows:
             - deploy_ecs_api_containers:
                 requires:
                     - deploy_aws_cloud_formation
-
 
             schedule-workflow:
                 triggers:
