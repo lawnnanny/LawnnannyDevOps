@@ -1,4 +1,6 @@
-version: 1
+version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@0.1.9
 jobs:
   deploy_aws_cloud_formation:
       working_directory: /app
@@ -16,9 +18,7 @@ jobs:
           - run:
               name: Configure AWS CLI To Run As Admin Role
               command: |
-                touch ~/.aws/config
-                printf $adminCredentials > ~/.aws/config
-                cat ~/.aws/config
+                aws sts assume-role --role-arn $adminArn --role-session-name $sessionName
           - run:
               name: Create Change Set
               command: |
