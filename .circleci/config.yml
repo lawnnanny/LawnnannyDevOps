@@ -3,15 +3,16 @@ jobs:
   deploy_aws_cloud_formation:
       working_directory: /app
       docker:
-          image: circleci/classic:201708-01
+          image: docker:17.05.0-ce-git
       steps:
           - run:
               name: Install Pip And Python
               command: |
-                apt-get update
-                apt-get install python3
-                curl -O https://bootstrap.pypa.io/get-pip.py
-                python get-pip.py --user
+                apk add --no-cache \
+                    py-pip=9.0.0-r1
+                pip install \
+                    docker-compose==1.12.0 \
+                    awscli==1.11.76
           - run:
               name: Install AWS CLI
               command: |
