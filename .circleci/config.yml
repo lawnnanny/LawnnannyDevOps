@@ -41,7 +41,6 @@ jobs:
               command: |
                  cd TerraWeb && aws s3 mv ./build
 
-
   deploy_ecs_api_containers:
       working_directory: /app
       docker:
@@ -102,14 +101,3 @@ workflows:
             - deploy_ecs_api_containers:
                 requires:
                     - deploy_aws_cloud_formation
-
-            schedule-workflow:
-                triggers:
-                    - schedule:
-                        cron: "0 0 * * *"
-                        filters:
-                            branches:
-                                only:
-                                    - master
-                                jobs:
-                                    - build_test_deploy
