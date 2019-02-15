@@ -16,6 +16,7 @@ jobs:
           - run:
               name: Configure AWS CLI To Run As Admin Role
               command: |
+                touch ~/.aws/config
                 printf $adminCredentials > ~/.aws/config
                 cat ~/.aws/config
           - run:
