@@ -21,7 +21,6 @@ jobs:
                 aws configure set aws_access_key_id $adminAccessKey
                 aws configure set aws_secret_access_key $adminSecretAccessKey
                 aws configure set default.region us-east-2
-                aws sts assume-role --role-arn $adminArn --role-session-name $sessionName
           - run:
               name: Create Change Set
               command: |
