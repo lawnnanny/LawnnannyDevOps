@@ -3,3 +3,7 @@ Description: Terra Cloud
 Resources:
     TerraS3:
         Type: AWS::S3::Bucket
+    TerraECSCluster:
+        Type: AWS::ECS::Cluster
+        Properties:
+            ClusterName: TerraCluster
