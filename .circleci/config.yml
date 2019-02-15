@@ -6,6 +6,22 @@ jobs:
           - image: docker:17.05.0-ce-git
       steps:
           - run:
+              name: Install Pip And Python
+              command: |
+                apt-get install python3
+                curl -O https://bootstrap.pypa.io/get-pip.py
+                python get-pip.py --user
+          - run:
+              name: Install AWS CLI
+              command: |
+                pip3 install awscli --upgrade --user
+                aws --version
+          - run:
+              name: Configure AWS CLI To Run As Admin Role
+              command: |
+                printf $adminCredentials > ~/.aws/config
+                cat ~/.aws/config
+          - run:
               name: Create Change Set
               command: |
                 aws cloudformation deploy --stack-name TerraStack \
