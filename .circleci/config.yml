@@ -25,7 +25,6 @@ jobs:
           - run:
               name: Deploy Cloudformation Stack
               command: |
-                ls
                 aws cloudformation deploy --stack-name TerraStack \
                     --template-file cloudFormation.yaml
 
