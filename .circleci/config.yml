@@ -22,10 +22,11 @@ jobs:
                 aws configure set aws_secret_access_key $adminSecretAccessKey
                 aws configure set default.region us-east-2
           - run:
-              name: Create Change Set
+              name: Deploy Cloudformation Stack
               command: |
+                ls
                 aws cloudformation deploy --stack-name TerraStack \
-                    --template-file cloudformation.yaml
+                    --template-file ./cloudformation.yaml
 
   deploy_react_to_cloud_front:
       working_directory: /app
