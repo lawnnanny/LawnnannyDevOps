@@ -3,7 +3,7 @@ jobs:
   deploy_aws_cloud_formation:
       working_directory: /app
       docker:
-          image: docker:17.05.0-ce-git
+          - image: docker:17.05.0-ce-git
       steps:
           - run:
               name: Install Pip And Python
