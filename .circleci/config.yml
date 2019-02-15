@@ -27,7 +27,7 @@ jobs:
               command: |
                 ls
                 aws cloudformation deploy --stack-name TerraStack \
-                    --template-file ./cloudformation.yaml
+                    --template-file cloudFormation.yaml
 
   deploy_react_to_cloud_front:
       working_directory: /app
