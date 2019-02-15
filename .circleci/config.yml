@@ -25,7 +25,7 @@ jobs:
               name: Create Change Set
               command: |
                 aws cloudformation deploy --stack-name TerraStack \
-                    --template-file cloudformation.yaml --change-set-type $changeSetOperation
+                    --template-file cloudformation.yaml
 
   deploy_react_to_cloud_front:
       working_directory: /app
