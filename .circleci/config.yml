@@ -2,7 +2,8 @@ version: 1
 jobs:
   deploy_aws_cloud_formation:
       working_directory: /app
-      machine: true
+      machine:
+          image: circleci/classic:201708-01
       steps:
           - run:
               name: Install Pip And Python
