@@ -7,3 +7,14 @@ Resources:
         Type: AWS::ECS::Cluster
         Properties:
             ClusterName: TerraCluster
+    TerraECSService:
+        Type: AWS::ECS::Service
+        Properties:
+            TaskDefinition: !REF TerraECSTaskDefinition
+    TerraECSTaskDefinition:
+        Type: AWS::ECS::TaskDefinition
+        Properties:
+            ContainerDefinitions:
+                - ContainerDefinition:
+                    Name: TerraElasticContainer
+                    Image: 498848135448.dkr.ecr.us-east-1.amazonaws.com/terra-repo
