@@ -13,11 +13,12 @@ Resources:
         Properties:
             DistributionConfig:
                 Origins:
-                    DomainName:
-                    Id: S3Origin
-                    S3OriginConfig:
-                        OriginAccessIdentity:
-
+                    - DomainName:
+                      Id: S3Origin
+                      S3OriginConfig:
+                          OriginAccessIdentity: !Sub
+                            - origin-access-identity/cloudfront/${IDOfOriginAccessIdentity}
+                            - { IDOfOriginAccessIdentity : !Ref CloudFrontOriginAccessIdentity }
                 DefaultCacheBehavior:
                     ForwardedValues:
                         QueryString: FALSE
