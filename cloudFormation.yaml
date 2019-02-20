@@ -3,6 +3,11 @@ Description: Terra Cloud
 Resources:
     TerraS3:
         Type: AWS::S3::Bucket
+    CloudFrontOriginAccessIdentity:
+        Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+        Properties:
+             CloudFrontOriginAccessIdentityConfig:
+                 Comment: Cloud Front Origin Access
     CloudFront:
         Type: AWS::CloudFront::Distribution
         Properties:
