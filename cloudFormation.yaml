@@ -3,6 +3,23 @@ Description: Terra Cloud
 Resources:
     TerraS3:
         Type: AWS::S3::Bucket
+    CloudFront:
+        Type: AWS::CloudFront::Distribution
+        Properties:
+            DistributionConfig:
+                Origins:
+                    DomainName:
+                    Id: S3Origin
+                    S3OriginConfig:
+                        OriginAccessIdentity:
+
+                DefaultCacheBehavior:
+                    ForwardedValues:
+                        QueryString: FALSE
+                    TargetOriginId:
+                    ViewerProtocolPolicy:
+                Origins:
+                Enabled:
     TerraECSCluster:
         Type: AWS::ECS::Cluster
         Properties:
