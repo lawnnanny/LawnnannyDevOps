@@ -13,7 +13,7 @@ Resources:
         Properties:
             DistributionConfig:
                 Origins:
-                    - DomainName:
+                    - DomainName: !GetAtt TerraS3.DomainName
                       Id: S3Origin
                       S3OriginConfig:
                           OriginAccessIdentity: !Sub
@@ -22,10 +22,9 @@ Resources:
                 DefaultCacheBehavior:
                     ForwardedValues:
                         QueryString: FALSE
-                    TargetOriginId:
-                    ViewerProtocolPolicy:
-                Origins:
-                Enabled:
+                    TargetOriginId: S3Origin
+                    ViewerProtocolPolicy: allow-all
+                Enabled: false
     TerraECSCluster:
         Type: AWS::ECS::Cluster
         Properties:
