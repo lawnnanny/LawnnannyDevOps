@@ -32,7 +32,7 @@ Resources:
     TerraECSService:
         Type: AWS::ECS::Service
         Properties:
-            TaskDefinition: !REF TerraECSTaskDefinition
+            TaskDefinition: !Ref TerraECSTaskDefinition
     TerraECSTaskDefinition:
         Type: AWS::ECS::TaskDefinition
         Properties:
