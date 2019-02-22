@@ -12,19 +12,19 @@ Resources:
         Type: AWS::CloudFront::Distribution
         Properties:
             DistributionConfig:
-                Origins:
-                    - DomainName: !GetAtt TerraS3.DomainName
-                      Id: S3Origin
-                      S3OriginConfig:
-                          OriginAccessIdentity: !Sub
-                            - origin-access-identity/cloudfront/${IDOfOriginAccessIdentity}
-                            - { IDOfOriginAccessIdentity : !Ref CloudFrontOriginAccessIdentity }
+                Enabled: 'false'
                 DefaultCacheBehavior:
-                    ForwardedValues:
-                        QueryString: FALSE
                     TargetOriginId: S3Origin
                     ViewerProtocolPolicy: allow-all
-                Enabled: false
+                    ForwardedValues:
+                        QueryString: 'false'
+                Origins:
+                - DomainName: !GetAtt [TerraS3, DomainName]
+                  Id: S3Origin
+                  S3OriginConfig:
+                      OriginAccessIdentity: !Sub
+                        - origin-access-identity/cloudfront/${IDOfOriginAccessIdentity}
+                        - { IDOfOriginAccessIdentity: !Ref CloudFrontOriginAccessIdentity }
     TerraECSCluster:
         Type: AWS::ECS::Cluster
         Properties:
