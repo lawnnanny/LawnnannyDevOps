@@ -24,10 +24,8 @@ jobs:
                 aws configure set default.region us-east-1
           - run:
               name: Deploy Cloudformation Stack
-              no_output_timeout: 4000
-              command: |
-                aws cloudformation deploy --stack-name TerraStack \
-                    --template-file cloudFormation.yaml
+              command: aws cloudformation deploy --stack-name TerraStack --template-file cloudFormation.yaml
+                timeout: 4000
 
   deploy_react_to_cloud_front:
       working_directory: /app
