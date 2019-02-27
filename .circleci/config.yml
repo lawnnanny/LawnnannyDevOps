@@ -25,7 +25,7 @@ jobs:
           - run:
               name: Deploy Cloudformation Stack
               command: aws cloudformation deploy --stack-name TerraStack --template-file cloudFormation.yaml
-              timeout: 4000
+              timeout: 21m
 
   deploy_react_to_cloud_front:
       working_directory: /app
