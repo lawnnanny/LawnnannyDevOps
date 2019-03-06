@@ -30,7 +30,7 @@ jobs:
   deploy_react_to_cloud_front:
       working_directory: ~/app
       docker:
-          - image: circleci/node:4.8.2
+          - image: circleci/node:8.11.0
       steps:
           - checkout
           - run:
