@@ -30,8 +30,9 @@ jobs:
   deploy_react_to_cloud_front:
       working_directory: ~/app
       docker:
-          - image: circleci/node:latest
+          - image: circleci/node:4.8.2
       steps:
+          - checkout
           - run:
               name: Clone React Repo
               command: |
@@ -43,7 +44,6 @@ jobs:
               name: Install Dependencies
               command: |
                 cd TerraWeb
-                sudo apt-get install g++ build-essential
                 npm install
           - run:
               name: Unit Tests For React
