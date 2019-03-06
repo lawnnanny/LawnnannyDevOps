@@ -45,6 +45,7 @@ jobs:
               command: |
                 cd TerraWeb
                 npm install
+                npm install --dev
           - run:
               name: Unit Tests For React
               command: |
