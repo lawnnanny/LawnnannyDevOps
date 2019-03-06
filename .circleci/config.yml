@@ -37,6 +37,9 @@ jobs:
               command: |
                 git clone https://github.com/sdrafahl/TerraWeb.git
           - run:
+              name: update-npm
+              command: 'sudo npm install -g npm@latest'
+          - run:
               name: Install Dependencies
               command: |
                 cd TerraWeb
