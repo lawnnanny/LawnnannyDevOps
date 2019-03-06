@@ -43,8 +43,8 @@ jobs:
           - run:
               name: Install Dependencies
               command: |
-                cd TerraWeb |
-                npm install --only=dev |
+                cd TerraWeb
+                npm install --only=dev
                 npm install
           - run:
               name: Unit Tests For React
