@@ -40,8 +40,8 @@ jobs:
               name: Install Dependencies
               command: |
                 cd TerraWeb
-                sudo apt-get install g++ build-essential
-                sudo npm install
+                apt-get install g++ build-essential
+                npm install
           - run:
               name: Unit Tests For React
               command: |
