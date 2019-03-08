@@ -47,6 +47,11 @@ jobs:
                 npm install --only=dev
                 npm install
           - run:
+              name: Added domainRequests.json
+              command: |
+                touch ./TerraWeb/src/domainRequests.json
+                echo "{}" >> ./TerraWeb/src/domainRequests.json
+          - run:
               name: Unit Tests For React
               command: |
                 cd TerraWeb && npm run test
