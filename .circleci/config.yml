@@ -24,7 +24,7 @@ jobs:
                 aws configure set default.region us-east-1
           - run:
               name: Deploy Cloudformation Stack
-              command: aws cloudformation deploy --template-file cloudFormation.yaml --stack-name TerraStack --no-fail-on-empty-changeset --parameter-overrides BucketName=${BucketName}
+              command: aws cloudformation deploy --template-file cloudFormation.yaml --stack-name TerraStack --no-fail-on-empty-changeset --parameter-overrides BucketNameArgument=${BucketName}
               no_output_timeout: 30m
 
   deploy_react_to_cloud_front:

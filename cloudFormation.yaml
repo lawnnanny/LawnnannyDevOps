@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Terra Cloud
 Parameters:
-    BucketName:
+    BucketNameArgument:
         Type: String
 Resources:
     TerraS3:
         Type: AWS::S3::Bucket
-        BucketName: !Ref BucketName
+        BucketName: !Ref BucketNameArgument
     CloudFrontOriginAccessIdentity:
         Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
         Properties:
