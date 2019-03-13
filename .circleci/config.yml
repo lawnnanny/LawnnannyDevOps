@@ -23,13 +23,13 @@ jobs:
                 aws configure set aws_secret_access_key $adminSecretAccessKey
                 aws configure set default.region us-east-1
           - run:
-              name: Deploy Cloudformation Stack \
+              name: Deploy Cloudformation Stack
               command: aws cloudformation deploy \
               --template-file cloudFormation.yaml \
               --stack-name TerraStack \
               --no-fail-on-empty-changeset \
               --parameter-overrides \
-              BucketName=${BucketName} \
+              BucketName=${BucketName}
               no_output_timeout: 30m
 
   deploy_react_to_cloud_front:
