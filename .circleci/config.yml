@@ -63,6 +63,13 @@ jobs:
               name: Install AWS CLI
               command: |
                 sudo apt-get -y -qq install awscli
+
+        - run:
+            name: Configure AWS CLI To Run As Admin Role
+            command: |
+              aws configure set aws_access_key_id $adminAccessKey
+              aws configure set aws_secret_access_key $adminSecretAccessKey
+              aws configure set default.region us-east-1
           - run:
               name: Ship Build File To S3 Bucket
               command: |
