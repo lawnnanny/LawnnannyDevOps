@@ -6,7 +6,8 @@ Parameters:
 Resources:
     TerraS3:
         Type: AWS::S3::Bucket
-        BucketName: !Ref BucketNameArgument
+        Properties:
+            BucketName: !Ref BucketNameArgument
     CloudFrontOriginAccessIdentity:
         Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
         Properties:
