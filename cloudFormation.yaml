@@ -8,6 +8,7 @@ Resources:
         Type: AWS::S3::Bucket
         Properties:
             BucketName: !Ref BucketNameArgument
+            AccessControl: PublicRead
     CloudFrontOriginAccessIdentity:
         Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
         Properties:
