@@ -72,7 +72,7 @@ jobs:
           - run:
               name: Ship Build File To S3 Bucket
               command: |
-                 cd TerraWeb && aws s3 mv ./build s3://${BucketName} --recursive
+                 cd TerraWeb && aws s3 mv ./build s3://${BucketName} --recursive --acl public-read-write
 
   deploy_ecs_api_containers:
       working_directory: /app
