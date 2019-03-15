@@ -99,7 +99,7 @@ jobs:
           - run:
               name: Build Application Docker Image
               command: |
-                sudo docker build .
+                docker build .
           - deploy:
               name: Push Application Docker Image
               command: |
