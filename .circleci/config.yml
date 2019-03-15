@@ -97,22 +97,13 @@ jobs:
                 touch passwords.json
                 echo {"database":$databasePassword} > passwords.json
           - run:
+              name: Running Tests
+              command: |
+                npm test
+          - run:
               name: Build Application Docker Image
               command: |
-                docker-compose build
-          - run:
-              name: Build Docker Container for Testing
-              command: |
-                docker-compose -f docker-compose.test.repo.yml build
-          - run:
-              name: Start Docker Container for Testing
-              command: |
-                docker-compose -f docker-compose.test.repo.yml up --abort-on-container-exit --exit-code-from sut
-          - run:
-              name: Start Docker Container for Testing
-              command: |
-                docker-compose -f docker-compose.test.repo.yml up --abort-on-container-exit --exit-code-from sut
-          - run: docker images
+                sudo docker build .
           - deploy:
               name: Push Application Docker Image
               command: |
