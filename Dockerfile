@@ -22,9 +22,9 @@ WORKDIR /TerraServer
 
 Run npm install
 
-Run npm install -g knex
+Run npm test
 
-Run apt-get install mysql-client -y
+Run npm install -g knex
 
 EXPOSE 3005
 
