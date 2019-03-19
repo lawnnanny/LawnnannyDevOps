@@ -22,6 +22,7 @@ jobs:
                 aws configure set aws_access_key_id $adminAccessKey
                 aws configure set aws_secret_access_key $adminSecretAccessKey
                 aws configure set default.region us-east-1
+          - run: echo ${LambdaS3BucketName}
           - run:
               name: Deploy Cloudformation Stack
               command: aws cloudformation deploy --template-file cloudFormation.yaml --stack-name TerraStack --no-fail-on-empty-changeset --parameter-overrides BucketNameArgument=${BucketName} LambdaS3BucketName=${LambdaS3BucketName}
