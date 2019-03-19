@@ -101,6 +101,11 @@ jobs:
               command: |
                 cd TerraAPI
                 sbt assembly
+          - run:
+              name: Ship Jar to S3 Bucket
+              command: |
+                cd TerraAPI
+                aws s3 mv ./target/scala-2.12/hello.jar s3://${LambdaS3BucketName} --acl public-read-write
 
 workflows:
     version: 2
