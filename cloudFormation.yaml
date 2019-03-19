@@ -21,13 +21,6 @@ Resources:
         Properties:
              CloudFrontOriginAccessIdentityConfig:
                  Comment: Cloud Front Origin Access
-    helloWorldLambda:
-        Type: AWS::Lambda::Function
-        Properties:
-            Runtime:
-            Role:
-            Handler:
-            Code:
     CloudFront:
         Type: AWS::CloudFront::Distribution
         Properties:
