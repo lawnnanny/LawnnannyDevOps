@@ -102,6 +102,12 @@ jobs:
                 cd TerraAPI
                 sbt assembly
           - run:
+              name: Configure AWS CLI To Run As Admin Role
+              command: |
+                aws configure set aws_access_key_id $adminAccessKey
+                aws configure set aws_secret_access_key $adminSecretAccessKey
+                aws configure set default.region us-east-1
+          - run:
               name: Ship Jar to S3 Bucket
               command: |
                 cd TerraAPI
