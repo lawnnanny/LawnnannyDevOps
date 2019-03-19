@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Terra Lambdas
+Parameters:
+    BucketNameArgument:
+        Type: String
+    LambdaS3BucketName:
+        Type: String
+Resources:
+    LambdaExecutionRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Principal:
+                  Service: lambda.amazonaws.com
+                Action: sts:AssumeRole
+    HelloWorldLambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            Runtime: "Java 8"
+            Role: !GetAtt [ LambdaExecutionRole, Arn ]
+            Handler: hello.Handler::ApiGatewayHandler
+            Code:
+                S3Bucket: !Ref LambdaS3BucketName
