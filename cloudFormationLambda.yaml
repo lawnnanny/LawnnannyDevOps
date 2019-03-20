@@ -17,7 +17,7 @@ Resources:
     HelloWorldLambda:
         Type: AWS::Lambda::Function
         Properties:
-            Runtime: "Java 8"
+            Runtime: Java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
             Handler: hello.Handler::ApiGatewayHandler
             Code:
