@@ -33,7 +33,7 @@ Resources:
             AuthorizationType: NONE
             HttpMethod: ANY
             ResourceId: !GetAtt RestApi.RootResourceId
-            RestApiId: !GetAtt RestApi
+            RestApiId: !Ref RestApi
             Integration:
                 Type: AWS_PROXY
                 IntegrationHttpMethod: POST
