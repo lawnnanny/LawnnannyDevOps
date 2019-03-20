@@ -1,8 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Terra Lambdas
 Parameters:
-    BucketNameArgument:
-        Type: String
     LambdaS3BucketName:
         Type: String
 Resources:

@@ -81,6 +81,7 @@ jobs:
       environment:
           SBT_VERSION: 1.0.4
       steps:
+          - checkout
           - run:
               name: Get sbt binary
               command: |
@@ -112,6 +113,11 @@ jobs:
               command: |
                 cd TerraAPI
                 aws s3 mv ./target/scala-2.12/hello.jar s3://${LambdaS3BucketName} --acl public-read-write
+          - run:
+              name: Deploy API stack
+              command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}
+              no_output_timeout: 30m
+
 
 workflows:
     version: 2
