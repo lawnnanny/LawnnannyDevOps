@@ -22,4 +22,4 @@ Resources:
             Handler: hello.Handler::ApiGatewayHandler
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
-                s3Key: hello.jar
+                S3Key: hello.jar
