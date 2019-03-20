@@ -23,3 +23,18 @@ Resources:
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
                 S3Key: hello.jar
+    RestApi:
+        Type: AWS::ApiGateway::RestApi
+        Properties:
+            Name: hello
+    ApiGateway:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: NONE
+            HttpMethod: ANY
+            ResourceId: !GetAtt RestApi.RootResourceId
+            RestApiId: !GetAtt RestApi
+            Integration:
+                Type: AWS_PROXY
+                IntegrationHttpMethod: POST
+                Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${HelloWorldLambda.Arn}/invocations
