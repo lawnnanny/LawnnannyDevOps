@@ -23,6 +23,12 @@ Resources:
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
                 S3Key: hello.jar
+    LambdaInvokePermission:
+        Type: AWS::Lambda::Permission
+            Properties:
+                Action: lambda:InvokeFunction
+                FunctionName: !Ref HelloWorldLambda
+                Principal: apigateway.amazonaws.com
     RestApi:
         Type: AWS::ApiGateway::RestApi
         Properties:
