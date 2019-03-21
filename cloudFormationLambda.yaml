@@ -27,14 +27,16 @@ Resources:
         Type: AWS::ApiGateway::RestApi
         Properties:
             Name: hello
+            EndpointConfiguration:
+
     ApiGateway:
         Type: AWS::ApiGateway::Method
         Properties:
             AuthorizationType: NONE
-            HttpMethod: ANY
+            HttpMethod: GET
             ResourceId: !GetAtt RestApi.RootResourceId
             RestApiId: !Ref RestApi
             Integration:
                 Type: AWS_PROXY
-                IntegrationHttpMethod: POST
-                Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${HelloWorldLambda.Arn}/invocations
+                IntegrationHttpMethod: GET
+                Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${HelloWorldLambda.Arn}/
