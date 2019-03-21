@@ -27,7 +27,6 @@ Resources:
         Type: AWS::ApiGateway::RestApi
         Properties:
             Name: hello
-            EndpointConfiguration:
 
     ApiGateway:
         Type: AWS::ApiGateway::Method
