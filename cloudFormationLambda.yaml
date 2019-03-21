@@ -11,6 +11,7 @@ Resources:
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
             Handler: hello.ApiGatewayHandler::handleRequest
+            Timeout: 15
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
                 S3Key: hello.jar
