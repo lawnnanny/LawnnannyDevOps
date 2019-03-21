@@ -24,22 +24,11 @@ Resources:
                 Principal:
                   Service: lambda.amazonaws.com
                 Action: sts:AssumeRole
-          Policies:
-            - PolicyDocument:
-                Version: "2012-10-17"
-                Statement:
-                  - Action:
-                      - "logs:CreateLogGroup"
-                      - "logs:CreateLogStream"
-                      - "logs:PutLogEvents"
-                    Effect: "Allow"
-                    Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hello:*"
-              PolicyName: lambda
     LambdaInvokePermission:
         Type: AWS::Lambda::Permission
         Properties:
             Action: lambda:InvokeFunction
-            FunctionName: hello
+            FunctionName: !GetAtt "HelloWorldLambda.Arn"
             Principal: apigateway.amazonaws.com
             SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/POST/"
     RestApi:
@@ -47,11 +36,6 @@ Resources:
         Properties:
             Name: hello
             Description: "Hello world"
-    lambdaLogGroup:
-        Type: "AWS::Logs::LogGroup"
-        Properties:
-            LogGroupName: !Sub "/aws/lambda/hello"
-            RetentionInDays: 90
     ApiResource:
         Type: AWS::ApiGateway::Resource
         Properties:
