@@ -10,7 +10,7 @@ Resources:
             FunctionName: hello
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
-            Handler: hello.Handler::ApiGatewayHandler
+            Handler: hello.ApiGatewayHandler::handleRequest
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
                 S3Key: hello.jar
