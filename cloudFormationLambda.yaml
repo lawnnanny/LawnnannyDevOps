@@ -4,6 +4,16 @@ Parameters:
     LambdaS3BucketName:
         Type: String
 Resources:
+    HelloWorldLambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: hello
+            Runtime: java8
+            Role: !GetAtt [ LambdaExecutionRole, Arn ]
+            Handler: hello.Handler::ApiGatewayHandler
+            Code:
+                S3Bucket: !Ref LambdaS3BucketName
+                S3Key: hello.jar
     LambdaExecutionRole:
         Type: "AWS::IAM::Role"
         Properties:
@@ -25,16 +35,6 @@ Resources:
                     Effect: "Allow"
                     Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/hello:*"
               PolicyName: lambda
-    HelloWorldLambda:
-        Type: AWS::Lambda::Function
-        Properties:
-            FunctionName: hello
-            Runtime: java8
-            Role: !GetAtt [ LambdaExecutionRole, Arn ]
-            Handler: hello.Handler::ApiGatewayHandler
-            Code:
-                S3Bucket: !Ref LambdaS3BucketName
-                S3Key: hello.jar
     LambdaInvokePermission:
         Type: AWS::Lambda::Permission
         Properties:
@@ -61,11 +61,11 @@ Resources:
     apiGatewayDeployment:
         Type: "AWS::ApiGateway::Deployment"
         DependsOn:
-            - "ApiGateway"
+            - "ApiGatewayMethod"
         Properties:
             RestApiId: !Ref "RestApi"
             StageName: prod
-    ApiGateway:
+    ApiGatewayMethod:
         Type: AWS::ApiGateway::Method
         Properties:
             AuthorizationType: NONE
