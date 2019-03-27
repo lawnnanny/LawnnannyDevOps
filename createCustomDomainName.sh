@@ -2,6 +2,9 @@
 DOMAIN_PARENT=$0
 CERTIFICATE_DOMAIN=$1
 CUSTOM_DOMAIN_NAME=$2
+echo $DOMAIN_PARENT
+echo $CERTIFICATE_DOMAIN
+echo $CUSTOM_DOMAIN_NAME
 echo "Getting Distribution Hosted Zone ID"
 DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='${DOMAIN_PARENT}'].Id)[0]" --output text)
 echo $DomainParentHostedZoneID
