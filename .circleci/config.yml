@@ -117,6 +117,9 @@ jobs:
               name: Deploy API stack
               command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --capabilities CAPABILITY_IAM --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}
               no_output_timeout: 30m
+          - run:
+              name: Create custom domain name if necessary
+              command: ./createCustomDomainName.sh lawnnanny.com. lawnnanny.com lambddas.lawnnanny.com
 workflows:
     version: 2
     build_and_test:
