@@ -1,16 +1,16 @@
 #!/bin/bash
-DOMAIN_PARENT=$0
-CERTIFICATE_DOMAIN=$1
-CUSTOM_DOMAIN_NAME=$2
+DOMAIN_PARENT=$1
+CERTIFICATE_DOMAIN=$2
+CUSTOM_DOMAIN_NAME=$3
 echo $DOMAIN_PARENT
 echo $CERTIFICATE_DOMAIN
 echo $CUSTOM_DOMAIN_NAME
 echo "Getting Distribution Hosted Zone ID"
-DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='${DOMAIN_PARENT}'].Id)[0]" --output text)
+DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='${DOMAIN_PARENT}'])[0].Id" --output text)
 echo $DomainParentHostedZoneID
 
 echo "Getting Certificate"
-CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='${CERTIFICATE_DOMAIN}'].CertificateArn)[0]" --output text)
+CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='${CERTIFICATE_DOMAIN}'])[0].CertificateArn" --output text)
 echo $CertificateArn
 
 domainExists=$(aws apigateway get-domain-names --query "items[?domainName=='${CUSTOM_DOMAIN_NAME}']")
@@ -20,10 +20,10 @@ if [ "$domainExists" = "[]" ]; then
 fi
 
 echo "Getting Distribution Domain Name"
-DistributionDomainName=$(aws apigateway get-domain-names --output text --query "(items[?domainName=='${CUSTOM_DOMAIN_NAME}'].distributionDomainName)[0]")
+DistributionDomainName=$(aws apigateway get-domain-names --output text --query "(items[?domainName=='${CUSTOM_DOMAIN_NAME}'])[0].distributionDomainName")
 
 echo "Getting API ID"
-apiId=$(aws apigateway get-rest-apis --output text --query "(items[?name=='hello'].id)[0]")
+apiId=$(aws apigateway get-rest-apis --output text --query "(items[?name=='hello'])[0].id")
 echo $apiId
 
 aws cloudformation deploy --stack-name DomainStack \
