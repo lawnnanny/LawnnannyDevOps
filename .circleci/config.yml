@@ -120,6 +120,7 @@ jobs:
           - run:
               name: Create custom domain name if necessary
               command: ./createCustomDomainName.sh lawnnanny.com. www.lawnnanny.com lambddas.lawnnanny.com
+              no_output_timeout: 30m
 workflows:
     version: 2
     build_and_test:
