@@ -11,7 +11,7 @@ Parameters:
     Type: String
 Resources:
   DomainNameARecord:
-    Type: 'AWS::Route53::RecordSetGroup'
+    Type: AWS::Route53::RecordSetGroup
     Properties:
       Comment: Points to an API Gateway Custom Domain a.k.a. CloudFront Distribution
       HostedZoneId: !Ref DomainParentHostedZoneID
@@ -22,11 +22,12 @@ Resources:
             HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !Ref DistributionDomainName
   AppBasePathMapping:
-    Type: "AWS::ApiGateway::BasePathMapping"
+    Type: AWS::ApiGateway::BasePathMapping
     Properties:
       BasePath: app
       DomainName: !Ref CustomDomainName
       RestApiId: !Ref RestApiId
+      Stage: prod
 Outputs:
   ApiURL:
     Description: API endpoint for the lambdas
