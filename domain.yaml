@@ -27,7 +27,6 @@ Resources:
       BasePath: app
       DomainName: !Ref CustomDomainName
       RestApiId: !Ref RestApiId
-      Stage: prod
 Outputs:
   ApiURL:
     Description: API endpoint for the lambdas
