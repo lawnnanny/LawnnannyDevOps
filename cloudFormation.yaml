@@ -6,6 +6,21 @@ Parameters:
     LambdaS3BucketName:
         Type: String
 Resources:
+    UserTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: UserTable
+            AttributeDefinitions:
+                -
+                    AttributeName: UserName
+                    AttributeType: S
+                -
+                    AttributeName: Password
+                    AttributeType: S
+            KeySchema:
+                -
+                    AttributeName: UserName
+                    KeyType: HASH
     TerraS3:
         Type: AWS::S3::Bucket
         Properties:
