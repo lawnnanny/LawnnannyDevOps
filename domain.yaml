@@ -32,7 +32,7 @@ Resources:
   RegistrationAppBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: app
+      BasePath: register
       DomainName: !Ref CustomDomainName
       RestApiId: !Ref RegistrationRestApiId
 Outputs:
