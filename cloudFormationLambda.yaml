@@ -19,6 +19,7 @@ Resources:
         Properties:
             FunctionName: hello
             Runtime: java8
+            MemorySize: 256
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
             Handler: lambdas.handlers.ApiGatewayHandler::handleRequest
             Timeout: 15
@@ -65,10 +66,11 @@ Resources:
         Type: AWS::Lambda::Function
         Properties:
             FunctionName: registration
+            MemorySize: 256
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
             Handler: lambdas.handlers.ApiGatewayHandler::handleRequest
-            Timeout: 15
+            Timeout: 45
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
                 S3Key: hello.jar
