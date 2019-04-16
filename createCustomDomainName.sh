@@ -37,5 +37,5 @@ aws cloudformation deploy --stack-name DomainStack \
             DomainParentHostedZoneID=$DomainParentHostedZoneID \
             CustomDomainName=$CUSTOM_DOMAIN_NAME \
             DistributionDomainName=$DistributionDomainName \
-            RegistrationRestApi=$RegistrationRestApiId \
+            RegistrationRestApiId=$RegistrationRestApiId \
         --no-fail-on-empty-changeset \
