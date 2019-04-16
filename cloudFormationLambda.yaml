@@ -4,17 +4,6 @@ Parameters:
     LambdaS3BucketName:
         Type: String
 Resources:
-    HelloWorldLambda:
-        Type: AWS::Lambda::Function
-        Properties:
-            FunctionName: hello
-            Runtime: java8
-            Role: !GetAtt [ LambdaExecutionRole, Arn ]
-            Handler: hello.ApiGatewayHandler::handleRequest
-            Timeout: 15
-            Code:
-                S3Bucket: !Ref LambdaS3BucketName
-                S3Key: hello.jar
     LambdaExecutionRole:
         Type: "AWS::IAM::Role"
         Properties:
@@ -25,11 +14,22 @@ Resources:
                 Principal:
                   Service: lambda.amazonaws.com
                 Action: sts:AssumeRole
+    HelloWorldLambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: hello
+            Runtime: java8
+            Role: !GetAtt [ LambdaExecutionRole, Arn ]
+            Handler: lambdas.handlers.ApiGatewayHandler::handleRequest
+            Timeout: 15
+            Code:
+                S3Bucket: !Ref LambdaS3BucketName
+                S3Key: hello.jar
     LambdaInvokePermission:
         Type: AWS::Lambda::Permission
         Properties:
             Action: lambda:InvokeFunction
-            FunctionName: !GetAtt "HelloWorldLambda.Arn"
+            FunctionName: !GetAtt "RegistrationLambda.Arn"
             Principal: apigateway.amazonaws.com
             SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/POST/"
     RestApi:
@@ -61,3 +61,50 @@ Resources:
                 Type: AWS_PROXY
                 IntegrationHttpMethod: POST
                 Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${HelloWorldLambda.Arn}/invocations
+    RegistrationLambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: registration
+            Runtime: java8RestApi
+            Role: !GetAtt [ LambdaExecutionRole, Arn ]
+            Handler: lambdas.hello.ApiGatewayHandler::handleRequest
+            Timeout: 15
+            Code:
+                S3Bucket: !Ref LambdaS3BucketName
+                S3Key: hello.jar
+    RegistrationRestApi:
+        Type: AWS::ApiGateway::RestApi
+        Properties:
+            Name: Registration
+            Description: Registration Rest Api
+    RegistrationApiResource:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+          ParentId: !GetAtt [ RegistrationRestApi, RootResourceId ]
+          PathPart: registration
+          RestApiId: !Ref RegistrationRestApi
+    RegistrationLambdaInvokePermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !GetAtt "RegistrationLambda.Arn"
+            Principal: apigateway.amazonaws.com
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RegistrationRestApi}/*/POST/"
+    RegistrationapiGatewayDeployment:
+        Type: "AWS::ApiGateway::Deployment"
+        DependsOn:
+            - "RegistrationApiGatewayMethod"
+        Properties:
+            RestApiId: !Ref "RegistrationRestApi"
+            StageName: prod
+    RegistrationApiGatewayMethod:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: NONE
+            HttpMethod: POST
+            ResourceId: !GetAtt "RegistrationRestApi.RootResourceId"
+            RestApiId: !Ref RegistrationRestApi
+            Integration:
+                Type: AWS_PROXY
+                IntegrationHttpMethod: POST
+                Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${RegistrationLambda.Arn}/invocations
