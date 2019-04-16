@@ -67,7 +67,7 @@ Resources:
             FunctionName: registration
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
-            Handler: lambdas.hello.ApiGatewayHandler::handleRequest
+            Handler: lambdas.handlers.ApiGatewayHandler::handleRequest
             Timeout: 15
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
