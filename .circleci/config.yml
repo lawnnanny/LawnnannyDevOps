@@ -102,9 +102,18 @@ jobs:
               command: |
                 git checkout ${gitBranch}
           - run:
-              name: Assemble The Jar
+              name: Enter The project
               command: |
                 cd TerraAPI
+          - run:
+              name: Add AWS.json config file
+              command: |
+                JSON_STRING='{"AWS_ACCESS_KEY":"'"$AWS_ACCESS_KEY"'","SECRET_AWS_ACCESS_KEY":"'"$SECRET_AWS_ACCESS_KEY"'","REGION":"'"$REGION"'"}'
+                echo "" > src/main/resources/AWS.json
+                echo $JSON_STRING > src/main/resources/AWS.json
+          - run:
+              name: Assemble The Jar
+              command: |
                 sbt assembly
           - run:
               name: Configure AWS CLI To Run As Admin Role
