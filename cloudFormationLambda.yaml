@@ -65,7 +65,7 @@ Resources:
         Type: AWS::Lambda::Function
         Properties:
             FunctionName: registration
-            Runtime: java8RestApi
+            Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
             Handler: lambdas.hello.ApiGatewayHandler::handleRequest
             Timeout: 15
