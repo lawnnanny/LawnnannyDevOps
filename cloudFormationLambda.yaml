@@ -20,7 +20,7 @@ Resources:
             FunctionName: hello
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
-            Handler: ApiGatewayHandler::handleRequest
+            Handler: lambdas.handlers.ApiGatewayHandler::handleRequest
             Timeout: 15
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
