@@ -5,6 +5,8 @@ Parameters:
     Type: String
   RestApiId:
     Type: String
+  RegistrationRestApiId:
+    Type: String
   DomainParentHostedZoneID:
     Type: String
   DistributionDomainName:
@@ -27,6 +29,12 @@ Resources:
       BasePath: app
       DomainName: !Ref CustomDomainName
       RestApiId: !Ref RestApiId
+  RegistrationAppBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: app
+      DomainName: !Ref CustomDomainName
+      RestApiId: !Ref RegistrationRestApiId
 Outputs:
   ApiURL:
     Description: API endpoint for the lambdas

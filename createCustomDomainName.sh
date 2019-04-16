@@ -26,6 +26,10 @@ echo "Getting API ID"
 apiId=$(aws apigateway get-rest-apis --output text --query "(items[?name=='hello'])[0].id")
 echo $apiId
 
+echo "Getting Registration RestApi ID"
+RegistrationRestApiId=$(aws apigateway get-rest-apis --output text --query "(items[?name=='Registration'])[0].id")
+echo $RegistrationRestApiId
+
 aws cloudformation deploy --stack-name DomainStack \
         --template-file ./domain.yaml \
         --parameter-overrides \
@@ -33,4 +37,5 @@ aws cloudformation deploy --stack-name DomainStack \
             DomainParentHostedZoneID=$DomainParentHostedZoneID \
             CustomDomainName=$CUSTOM_DOMAIN_NAME \
             DistributionDomainName=$DistributionDomainName \
+            RegistrationRestApi=$RegistrationRestApiId \
         --no-fail-on-empty-changeset \
