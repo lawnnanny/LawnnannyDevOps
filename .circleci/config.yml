@@ -98,6 +98,10 @@ jobs:
               command: |
                 git clone https://github.com/sdrafahl/TerraAPI.git
           - run:
+              name: Checkout The Correct Branch
+              command: |
+                git checkout ${gitBranch}
+          - run:
               name: Assemble The Jar
               command: |
                 cd TerraAPI
