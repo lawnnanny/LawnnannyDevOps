@@ -69,7 +69,7 @@ Resources:
             MemorySize: 256
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
-            Handler: lambdas.handlers.ApiGatewayHandler::handleRequest
+            Handler: lambdas.handlers.RegistrationApiGatewayHandler::handleRequest
             Timeout: 45
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
