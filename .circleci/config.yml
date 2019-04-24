@@ -112,7 +112,7 @@ jobs:
               name: Ship Jar to S3 Bucket
               command: |
                 cd TerraAPI
-                aws s3 mv ./target/scala-2.12/hello.jar s3://${LambdaS3BucketName} --acl public-read-write
+                aws s3 mv ./target/scala-2.12/lambda.jar s3://${LambdaS3BucketName} --acl public-read-write
           - run:
               name: Deploy API stack
               command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --capabilities CAPABILITY_IAM --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}

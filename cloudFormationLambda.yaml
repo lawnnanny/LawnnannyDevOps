@@ -14,7 +14,7 @@ Resources:
             Timeout: 15
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
-                S3Key: hello.jar
+                S3Key: lambda.jar
     LambdaExecutionRole:
         Type: "AWS::IAM::Role"
         Properties:
