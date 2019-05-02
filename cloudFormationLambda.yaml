@@ -126,7 +126,7 @@ Resources:
     UserSessionRestApi:
         Type: AWS::ApiGateway::RestApi
         Properties:
-            Name: usersession
+            Name: UserSession
             Description: User Session
     UserSessionApiResource:
         Type: AWS::ApiGateway::Resource
