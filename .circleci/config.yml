@@ -74,7 +74,7 @@ jobs:
               command: |
                  cd TerraWeb && aws s3 mv ./build s3://${BucketName} --recursive --acl public-read-write
 
-  deploy_ecs_api_containers:
+  deploy_ecs_api_lambdas:
       working_directory: ~/app
       docker:
           - image: openjdk:8
@@ -141,6 +141,6 @@ workflows:
             - deploy_react_to_cloud_front:
                 requires:
                     - deploy_aws_cloud_formation
-            - deploy_ecs_api_containers:
+            - deploy_ecs_api_lambdas:
                 requires:
                     - deploy_aws_cloud_formation
