@@ -40,7 +40,7 @@ Resources:
   UserSessionAppBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: register
+      BasePath: session
       DomainName: !Ref CustomDomainName
       RestApiId: !Ref UserSessionRestApiId
 Outputs:
