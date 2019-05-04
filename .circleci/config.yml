@@ -113,7 +113,7 @@ jobs:
               name: Add UserSessionConfig.json config file
               command: |
                 cd TerraAPI
-                JSON_STRING='{"EXPIRATION_FOR_SESSION":$EXPIRATION_FOR_SESSION,"SECRET_KEY":"'"$SECRET_KEY"'"}'
+                JSON_STRING='{"EXPIRATION_FOR_SESSION":"'"${EXPIRATION_FOR_SESSION}"'","SECRET_KEY":"'"$SECRET_KEY"'"}'
                 echo "" > ./src/main/resources/UserSessionConfig.json
                 echo $JSON_STRING > src/main/resources/UserSessionConfig.json
           - run:
