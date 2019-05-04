@@ -110,6 +110,13 @@ jobs:
                 echo "" > ./src/main/resources/AWS.json
                 echo $JSON_STRING > src/main/resources/AWS.json
           - run:
+              name: Add UserSessionConfig.json config file
+              command: |
+                cd TerraAPI
+                JSON_STRING='{"EXPIRATION_FOR_SESSION":$EXPIRATION_FOR_SESSION,"SECRET_KEY":"'"$SECRET_KEY"'"}'
+                echo "" > ./src/main/resources/UserSessionConfig.json
+                echo $JSON_STRING > src/main/resources/UserSessionConfig.json
+          - run:
               name: Assemble The Jar
               command: |
                 cd TerraAPI
