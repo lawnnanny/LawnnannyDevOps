@@ -115,7 +115,7 @@ Resources:
         Type: AWS::Lambda::Function
         Properties:
             FunctionName: usersession
-            MemorySize: 256
+            MemorySize: 600
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
             Handler: lambdas.handlers.UserSessionApiGatewayHandler::handleRequest
