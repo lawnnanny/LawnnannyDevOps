@@ -25,7 +25,7 @@ Resources:
             Timeout: 15
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
-                S3Key: hello.jar
+                S3Key: lambda.jar
     LambdaInvokePermission:
         Type: AWS::Lambda::Permission
         Properties:
@@ -69,11 +69,11 @@ Resources:
             MemorySize: 256
             Runtime: java8
             Role: !GetAtt [ LambdaExecutionRole, Arn ]
-            Handler: lambdas.handlers.ApiGatewayHandler::handleRequest
+            Handler: lambdas.handlers.RegistrationApiGatewayHandler::handleRequest
             Timeout: 45
             Code:
                 S3Bucket: !Ref LambdaS3BucketName
-                S3Key: hello.jar
+                S3Key: lambda.jar
     RegistrationRestApi:
         Type: AWS::ApiGateway::RestApi
         Properties:
@@ -110,3 +110,52 @@ Resources:
                 Type: AWS_PROXY
                 IntegrationHttpMethod: POST
                 Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${RegistrationLambda.Arn}/invocations
+    ############################################################################################################################
+    UserSessionLambda:
+        Type: AWS::Lambda::Function
+        Properties:
+            FunctionName: usersession
+            MemorySize: 600
+            Runtime: java8
+            Role: !GetAtt [ LambdaExecutionRole, Arn ]
+            Handler: lambdas.handlers.UserSessionApiGatewayHandler::handleRequest
+            Timeout: 45
+            Code:
+                S3Bucket: !Ref LambdaS3BucketName
+                S3Key: lambda.jar
+    UserSessionRestApi:
+        Type: AWS::ApiGateway::RestApi
+        Properties:
+            Name: UserSession
+            Description: User Session
+    UserSessionApiResource:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+          ParentId: !GetAtt [ UserSessionRestApi, RootResourceId ]
+          PathPart: usersession
+          RestApiId: !Ref UserSessionRestApi
+    UserSessionLambdaInvokePermission:
+        Type: AWS::Lambda::Permission
+        Properties:
+            Action: lambda:InvokeFunction
+            FunctionName: !GetAtt "UserSessionLambda.Arn"
+            Principal: apigateway.amazonaws.com
+            SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${UserSessionRestApi}/*/POST/"
+    UserSessionApiGatewayDeployment:
+        Type: "AWS::ApiGateway::Deployment"
+        DependsOn:
+            - "UserSessionApiGatewayMethod"
+        Properties:
+            RestApiId: !Ref "UserSessionRestApi"
+            StageName: prod
+    UserSessionApiGatewayMethod:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: NONE
+            HttpMethod: POST
+            ResourceId: !GetAtt "UserSessionRestApi.RootResourceId"
+            RestApiId: !Ref UserSessionRestApi
+            Integration:
+                Type: AWS_PROXY
+                IntegrationHttpMethod: POST
+                Uri: !Sub arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${UserSessionLambda.Arn}/invocations
