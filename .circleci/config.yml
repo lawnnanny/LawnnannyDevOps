@@ -36,7 +36,7 @@ jobs:
           - run:
               name: Clone React Repo
               command: |
-                git clone https://github.com/sdrafahl/TerraWeb.git
+                git clone https://github.com/lawnnanny/LawnNannyWeb.git
           - run:
               name: update-npm
               command: 'sudo npm install -g npm@latest'
@@ -96,7 +96,7 @@ jobs:
           - run:
               name: Checkout the Code
               command: |
-                git clone https://github.com/sdrafahl/TerraAPI.git
+                git clone https://github.com/lawnnanny/TerraAPI.git
           - run:
               name: Checkout The Correct Branch
               command: |
