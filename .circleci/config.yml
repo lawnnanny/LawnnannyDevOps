@@ -96,7 +96,7 @@ jobs:
           - run:
               name: Checkout the Code
               command: |
-                git clone https://github.com/lawnnanny/TerraAPI.git
+                git clone https://github.com/lawnnanny/LawnnannyRegistrationLoginAPI.git
           - run:
               name: Checkout The Correct Branch
               command: |
