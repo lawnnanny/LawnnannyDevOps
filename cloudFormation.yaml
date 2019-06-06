@@ -5,6 +5,12 @@ Parameters:
         Type: String
     LambdaS3BucketName:
         Type: String
+    DomainName:
+      Type: String
+    HostedZoneId:
+      Type: String
+    AcmCertificate:
+      Type: String
 Resources:
     UserTable:
         Type: AWS::DynamoDB::Table
@@ -34,19 +40,43 @@ Resources:
         Properties:
              CloudFrontOriginAccessIdentityConfig:
                  Comment: Cloud Front Origin Access
+    AliasRecordsForDomainToCloudFront:
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        Comment: Points a domain name to cloudfront
+        HostedZoneId: !Ref HostedZoneId
+        RecordSets:
+          - Name: !Ref DomainName
+            Type: A
+            AliasTarget:
+              DNSName: !GetAtt [CloudFront, DomainName]
+              HostedZoneId: Z2FDTNDATAQYW2
     CloudFront:
         Type: AWS::CloudFront::Distribution
         Properties:
             DistributionConfig:
+                Aliases:
+                  -
+                     !Ref DomainName
                 Enabled: 'true'
+                HttpVersion: http2
+                DefaultRootObject: index.html
+                CustomErrorResponses:
+                  - ErrorCode: 404
+                    ResponseCode: 200
+                    ResponsePagePath: /index.html
+                ViewerCertificate:
+                  AcmCertificateArn: !Ref AcmCertificate
+                  SslSupportMethod: sni-only
+                  MinimumProtocolVersion: TLSv1
                 DefaultCacheBehavior:
-                    TargetOriginId: S3Origin
-                    ViewerProtocolPolicy: allow-all
-                    ForwardedValues:
-                        QueryString: 'false'
+                  TargetOriginId: S3-Website-terras3bucket.s3-website-us-east-1.amazonaws.com
+                  ViewerProtocolPolicy: redirect-to-https
+                  ForwardedValues:
+                      QueryString: true
                 Origins:
                 - DomainName: !GetAtt [TerraS3, DomainName]
-                  Id: S3Origin
+                  Id: S3-Website-terras3bucket.s3-website-us-east-1.amazonaws.com
                   S3OriginConfig:
                       OriginAccessIdentity: !Sub
                         - origin-access-identity/cloudfront/${IDOfOriginAccessIdentity}

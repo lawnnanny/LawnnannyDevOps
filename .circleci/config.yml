@@ -24,8 +24,11 @@ jobs:
                 aws configure set default.region us-east-1
           - run:
               name: Deploy Cloudformation Stack
-              command: aws cloudformation deploy --template-file cloudFormation.yaml --stack-name TerraStack --no-fail-on-empty-changeset --parameter-overrides BucketNameArgument=${BucketName} LambdaS3BucketName=${LambdaS3BucketName}
-              no_output_timeout: 30m
+              command: |
+               DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='lawnnanny.com.'])[0].Id" --output text)
+                CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='*.lawnnanny.com'])[0].CertificateArn" --output text)
+               aws cloudformation deploy --template-file cloudFormation.yaml --stack-name TerraStack --no-fail-on-empty-changeset --parameter-overrides BucketNameArgument=${BucketName} LambdaS3BucketName=${LambdaS3BucketName} DomainName=www.lawnnanny.com HostedZoneId=${DomainParentHostedZoneID} AcmCertificate=${CertificateArn}
+              no_output_timeout: 1h
 
   deploy_react_to_cloud_front:
       working_directory: ~/app
@@ -43,22 +46,22 @@ jobs:
           - run:
               name: Install Dependencies
               command: |
-                cd TerraWeb
+                cd LawnNannyWeb
                 npm install --only=dev
                 npm install
           - run:
               name: Added domainRequests.json
               command: |
-                touch ./TerraWeb/src/domainRequests.json
-                echo "{}" >> ./TerraWeb/src/domainRequests.json
+                touch ./LawnNannyWeb/src/domainRequests.json
+                echo "{}" >> ./LawnNannyWeb/src/domainRequests.json
           - run:
               name: Unit Tests For React
               command: |
-                cd TerraWeb && npm run test
+                cd LawnNannyWeb && npm run test
           - run:
               name: Build React
               command: |
-                cd TerraWeb && npm run build
+                cd LawnNannyWeb && npm run build
           - run:
               name: Install AWS CLI
               command: |
@@ -72,7 +75,7 @@ jobs:
           - run:
               name: Ship Build File To S3 Bucket
               command: |
-                 cd TerraWeb && aws s3 mv ./build s3://${BucketName} --recursive --acl public-read-write
+                 cd LawnNannyWeb && aws s3 mv ./build s3://${BucketName} --recursive --acl public-read-write
 
   deploy_ecs_api_lambdas:
       working_directory: ~/app
@@ -100,26 +103,26 @@ jobs:
           - run:
               name: Checkout The Correct Branch
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 git checkout ${gitBranch}
           - run:
               name: Add AWS.json config file
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 JSON_STRING='{"AWS_ACCESS_KEY":"'"$AWS_ACCESS_KEY"'","SECRET_AWS_ACCESS_KEY":"'"$SECRET_AWS_ACCESS_KEY"'","REGION":"'"$REGION"'"}'
                 echo "" > ./src/main/resources/AWS.json
                 echo $JSON_STRING > src/main/resources/AWS.json
           - run:
               name: Add UserSessionConfig.json config file
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 JSON_STRING='{"EXPIRATION_FOR_SESSION": '${EXPIRATION_FOR_SESSION}',"SECRET_KEY":"'"$SECRET_KEY"'"}'
                 echo "" > ./src/main/resources/UserSessionConfig.json
                 echo $JSON_STRING > src/main/resources/UserSessionConfig.json
           - run:
               name: Assemble The Jar
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 sbt assembly
           - run:
               name: Configure AWS CLI To Run As Admin Role
@@ -130,7 +133,7 @@ jobs:
           - run:
               name: Ship Jar to S3 Bucket
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 aws s3 mv ./target/scala-2.12/lambda.jar s3://${LambdaS3BucketName} --acl public-read-write
           - run:
               name: Deploy API stack
