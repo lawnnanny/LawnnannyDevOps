@@ -1,10 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Terra Cloud
+Description: Lawn Nanny Frontend Stack
 Parameters:
-    BucketNameArgument:
-        Type: String
-    LambdaS3BucketName:
-        Type: String
+    BucketNameOfFrontendDeployment:
+      Type: String
     DomainName:
       Type: String
     HostedZoneId:
@@ -12,28 +10,10 @@ Parameters:
     AcmCertificate:
       Type: String
 Resources:
-    UserTable:
-        Type: AWS::DynamoDB::Table
-        Properties:
-            TableName: UserTable
-            BillingMode: PAY_PER_REQUEST
-            AttributeDefinitions:
-                -
-                    AttributeName: UserName
-                    AttributeType: S
-            KeySchema:
-                -
-                    AttributeName: UserName
-                    KeyType: HASH
-    TerraS3:
+    LawnNannyWebS3:
         Type: AWS::S3::Bucket
         Properties:
-            BucketName: !Ref BucketNameArgument
-            AccessControl: PublicRead
-    TerraS3LambdaBucket:
-        Type: AWS::S3::Bucket
-        Properties:
-            BucketName: !Ref LambdaS3BucketName
+            BucketName: !Ref BucketNameOfFrontendDeployment
             AccessControl: PublicRead
     CloudFrontOriginAccessIdentity:
         Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
@@ -70,13 +50,13 @@ Resources:
                   SslSupportMethod: sni-only
                   MinimumProtocolVersion: TLSv1
                 DefaultCacheBehavior:
-                  TargetOriginId: S3-Website-terras3bucket.s3-website-us-east-1.amazonaws.com
+                  TargetOriginId: S3-Website-lawnnannywebs3bucket.s3-website-us-east-1.amazonaws.com
                   ViewerProtocolPolicy: redirect-to-https
                   ForwardedValues:
                       QueryString: true
                 Origins:
-                - DomainName: !GetAtt [TerraS3, DomainName]
-                  Id: S3-Website-terras3bucket.s3-website-us-east-1.amazonaws.com
+                - DomainName: !GetAtt [LawnNannyWebS3, DomainName]
+                  Id: S3-Website-lawnnannywebs3bucket.s3-website-us-east-1.amazonaws.com
                   S3OriginConfig:
                       OriginAccessIdentity: !Sub
                         - origin-access-identity/cloudfront/${IDOfOriginAccessIdentity}

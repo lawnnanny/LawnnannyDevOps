@@ -4,6 +4,19 @@ Parameters:
     LambdaS3BucketName:
         Type: String
 Resources:
+    UserTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: UserTable
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+                -
+                    AttributeName: UserName
+                    AttributeType: S
+            KeySchema:
+                -
+                    AttributeName: UserName
+                    KeyType: HASH
     LambdaExecutionRole:
         Type: "AWS::IAM::Role"
         Properties:

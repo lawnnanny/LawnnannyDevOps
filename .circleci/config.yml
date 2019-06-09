@@ -2,35 +2,35 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1.9
 jobs:
-  deploy_aws_cloud_formation:
-      working_directory: /app
-      docker:
-          - image: docker:17.05.0-ce-git
-      steps:
-          - checkout
-          - run:
-              name: Install Dependencies
-              command: |
-                apk add --no-cache \
-                    py-pip=9.0.0-r1
-                pip install \
-                    docker-compose==1.12.0 \
-                    awscli==1.16.113
-          - run:
-              name: Configure AWS CLI To Run As Admin Role
-              command: |
+  deploy_front_end_infra:
+    working_directory: /app
+    docker:
+        - image: docker:17.05.0-ce-git
+    steps:
+        - checkout
+        - run:
+            name: Install Dependencies
+            command: |
+              apk add --no-cache \
+                  py-pip=9.0.0-r1
+              pip install \
+                  docker-compose==1.12.0 \
+                  awscli==1.16.113
+        - run:
+            name: Configure AWS CLI to Run as Admin
+            command: |
                 aws configure set aws_access_key_id $adminAccessKey
                 aws configure set aws_secret_access_key $adminSecretAccessKey
                 aws configure set default.region us-east-1
-          - run:
-              name: Deploy Cloudformation Stack
-              command: |
-               DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='lawnnanny.com.'])[0].Id" --output text)
-                CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='*.lawnnanny.com'])[0].CertificateArn" --output text)
-               aws cloudformation deploy --template-file cloudFormation.yaml --stack-name TerraStack --no-fail-on-empty-changeset --parameter-overrides BucketNameArgument=${BucketName} LambdaS3BucketName=${LambdaS3BucketName} DomainName=www.lawnnanny.com HostedZoneId=${DomainParentHostedZoneID} AcmCertificate=${CertificateArn}
-              no_output_timeout: 1h
+        - run:
+            name: Deploy Lawn Nanny Frontend Stack
+            command: |
+             DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='lawnnanny.com.'])[0].Id" --output text)
+              CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='*.lawnnanny.com'])[0].CertificateArn" --output text)
+             aws cloudformation deploy --template-file lawnNannyFrontendStack.yaml --stack-name LawnNannyFrontendStack --no-fail-on-empty-changeset --parameter-overrides BucketNameOfFrontendDeployment=${FrontendDeploymentS3} DomainName=www.lawnnanny.com HostedZoneId=${DomainParentHostedZoneID} AcmCertificate=${CertificateArn}
+            no_output_timeout: 1h
 
-  deploy_react_to_cloud_front:
+  deploy_code_react_to_cloud_front:
       working_directory: ~/app
       docker:
           - image: circleci/node:8.11.0
@@ -75,7 +75,38 @@ jobs:
           - run:
               name: Ship Build File To S3 Bucket
               command: |
-                 cd LawnNannyWeb && aws s3 mv ./build s3://${BucketName} --recursive --acl public-read-write
+                 aws configure set aws_access_key_id $adminAccessKey
+                 aws configure set aws_secret_access_key $adminSecretAccessKey
+                 aws configure set default.region us-east-1
+                 cd LawnNannyWeb
+                 echo $FrontendDeploymentS3
+                 aws s3 mv ./build s3://${FrontendDeploymentS3} --recursive --acl public-read-write
+
+  deploy_ecs_api_lambda_infra:
+      working_directory: ~/app
+      docker:
+          - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
+      environment:
+          SBT_VERSION: 1.0.4
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: |
+              sudo apt install python-pip
+              sudo apt-get install -y curl
+              sudo apt-get update
+              sudo pip install awscli
+        - run:
+            name: Configure AWS CLI To Run As Admin Role
+            command: |
+              aws configure set aws_access_key_id $adminAccessKey
+              aws configure set aws_secret_access_key $adminSecretAccessKey
+              aws configure set default.region us-east-1
+        - run:
+            name: Deploy API stack
+            command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --capabilities CAPABILITY_IAM --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}
+            no_output_timeout: 30m
 
   deploy_ecs_api_lambdas:
       working_directory: ~/app
@@ -85,6 +116,10 @@ jobs:
           SBT_VERSION: 1.0.4
       steps:
           - checkout
+          - run:
+              name: Create S3 Bucket For Code
+              command: |
+                ./createLambdaBucket.sh $LambdaS3BucketName
           - run:
               name: Get sbt binary
               command: |
@@ -134,11 +169,8 @@ jobs:
               name: Ship Jar to S3 Bucket
               command: |
                 cd LawnnannyRegistrationLoginAPI
+                echo $LambdaS3BucketName
                 aws s3 mv ./target/scala-2.12/lambda.jar s3://${LambdaS3BucketName} --acl public-read-write
-          - run:
-              name: Deploy API stack
-              command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --capabilities CAPABILITY_IAM --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}
-              no_output_timeout: 30m
           - run:
               name: Create custom domain name if necessary
               command: ./createCustomDomainName.sh lawnnanny.com. lambddas.lawnnanny.com lambddas.lawnnanny.com
@@ -147,10 +179,11 @@ workflows:
     version: 2
     build_and_test:
         jobs:
-            - deploy_aws_cloud_formation
-            - deploy_react_to_cloud_front:
+            - deploy_front_end_infra
+            - deploy_ecs_api_lambdas
+            - deploy_code_react_to_cloud_front:
                 requires:
-                    - deploy_aws_cloud_formation
-            - deploy_ecs_api_lambdas:
+                  - deploy_front_end_infra
+            - deploy_ecs_api_lambda_infra:
                 requires:
-                    - deploy_aws_cloud_formation
+                    - deploy_ecs_api_lambdas
