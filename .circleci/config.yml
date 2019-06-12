@@ -19,14 +19,12 @@ jobs:
         - run:
             name: Configure AWS CLI to Run as Admin
             command: |
-                aws configure set aws_access_key_id $adminAccessKey
-                aws configure set aws_secret_access_key $adminSecretAccessKey
-                aws configure set default.region us-east-1
+                ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
         - run:
             name: Deploy Lawn Nanny Frontend Stack
             command: |
              DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='lawnnanny.com.'])[0].Id" --output text)
-              CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='*.lawnnanny.com'])[0].CertificateArn" --output text)
+             CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='*.lawnnanny.com'])[0].CertificateArn" --output text)
              aws cloudformation deploy --template-file lawnNannyFrontendStack.yaml --stack-name LawnNannyFrontendStack --no-fail-on-empty-changeset --parameter-overrides BucketNameOfFrontendDeployment=${FrontendDeploymentS3} DomainName=www.lawnnanny.com HostedZoneId=${DomainParentHostedZoneID} AcmCertificate=${CertificateArn}
             no_output_timeout: 1h
 
@@ -42,7 +40,8 @@ jobs:
                 git clone https://github.com/lawnnanny/LawnNannyWeb.git
           - run:
               name: update-npm
-              command: 'sudo npm install -g npm@latest'
+              command: |
+               sudo npm install -g npm@latest
           - run:
               name: Install Dependencies
               command: |
@@ -67,20 +66,15 @@ jobs:
               command: |
                 sudo apt-get -y -qq install awscli
           - run:
-              name: Configure AWS CLI to Run as Admin
+              name: Configure AWS Config
               command: |
-                  aws configure set aws_access_key_id $adminAccessKey
-                  aws configure set aws_secret_access_key $adminSecretAccessKey
-                  aws configure set default.region us-east-1
+                ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
+              no_output_timeout: 30m
           - run:
               name: Ship Build File To S3 Bucket
               command: |
-                 aws configure set aws_access_key_id $adminAccessKey
-                 aws configure set aws_secret_access_key $adminSecretAccessKey
-                 aws configure set default.region us-east-1
-                 cd LawnNannyWeb
-                 echo $FrontendDeploymentS3
-                 aws s3 mv ./build s3://${FrontendDeploymentS3} --recursive --acl public-read-write
+               cd LawnNannyWeb
+               aws s3 mv ./build s3://${FrontendDeploymentS3} --recursive --acl public-read-write
 
   deploy_ecs_api_lambda_infra:
       working_directory: ~/app
@@ -100,9 +94,7 @@ jobs:
         - run:
             name: Configure AWS CLI To Run As Admin Role
             command: |
-              aws configure set aws_access_key_id $adminAccessKey
-              aws configure set aws_secret_access_key $adminSecretAccessKey
-              aws configure set default.region us-east-1
+              ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
         - run:
             name: Deploy API stack
             command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --capabilities CAPABILITY_IAM --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}
@@ -162,9 +154,7 @@ jobs:
           - run:
               name: Configure AWS CLI To Run As Admin Role
               command: |
-                aws configure set aws_access_key_id $adminAccessKey
-                aws configure set aws_secret_access_key $adminSecretAccessKey
-                aws configure set default.region us-east-1
+                ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
           - run:
               name: Ship Jar to S3 Bucket
               command: |
@@ -173,7 +163,8 @@ jobs:
                 aws s3 mv ./target/scala-2.12/lambda.jar s3://${LambdaS3BucketName} --acl public-read-write
           - run:
               name: Create custom domain name if necessary
-              command: ./createCustomDomainName.sh lawnnanny.com. lambddas.lawnnanny.com lambddas.lawnnanny.com
+              command: |
+                ./createCustomDomainName.sh lawnnanny.com. lambddas.lawnnanny.com lambddas.lawnnanny.com
               no_output_timeout: 30m
 workflows:
     version: 2
