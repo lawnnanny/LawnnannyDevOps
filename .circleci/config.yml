@@ -2,32 +2,33 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@0.1.9
 jobs:
-  deploy_aws_cloud_formation:
-      working_directory: /app
-      docker:
-          - image: docker:17.05.0-ce-git
-      steps:
-          - checkout
-          - run:
-              name: Install Dependencies
-              command: |
-                apk add --no-cache \
-                    py-pip=9.0.0-r1
-                pip install \
-                    docker-compose==1.12.0 \
-                    awscli==1.16.113
-          - run:
-              name: Configure AWS CLI To Run As Admin Role
-              command: |
-                aws configure set aws_access_key_id $adminAccessKey
-                aws configure set aws_secret_access_key $adminSecretAccessKey
-                aws configure set default.region us-east-1
-          - run:
-              name: Deploy Cloudformation Stack
-              command: aws cloudformation deploy --template-file cloudFormation.yaml --stack-name TerraStack --no-fail-on-empty-changeset --parameter-overrides BucketNameArgument=${BucketName} LambdaS3BucketName=${LambdaS3BucketName}
-              no_output_timeout: 30m
+  deploy_front_end_infra:
+    working_directory: /app
+    docker:
+        - image: docker:17.05.0-ce-git
+    steps:
+        - checkout
+        - run:
+            name: Install Dependencies
+            command: |
+              apk add --no-cache \
+                  py-pip=9.0.0-r1
+              pip install \
+                  docker-compose==1.12.0 \
+                  awscli==1.16.113
+        - run:
+            name: Configure AWS CLI to Run as Admin
+            command: |
+                ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
+        - run:
+            name: Deploy Lawn Nanny Frontend Stack
+            command: |
+             DomainParentHostedZoneID=$(aws route53 list-hosted-zones-by-name --query "(HostedZones[?Name=='lawnnanny.com.'])[0].Id" --output text)
+             CertificateArn=$(aws acm list-certificates --query "(CertificateSummaryList[?DomainName=='*.lawnnanny.com'])[0].CertificateArn" --output text)
+             aws cloudformation deploy --template-file lawnNannyFrontendStack.yaml --stack-name LawnNannyFrontendStack --no-fail-on-empty-changeset --parameter-overrides BucketNameOfFrontendDeployment=${FrontendDeploymentS3} DomainName=www.lawnnanny.com HostedZoneId=${DomainParentHostedZoneID} AcmCertificate=${CertificateArn}
+            no_output_timeout: 1h
 
-  deploy_react_to_cloud_front:
+  deploy_code_react_to_cloud_front:
       working_directory: ~/app
       docker:
           - image: circleci/node:8.11.0
@@ -39,40 +40,65 @@ jobs:
                 git clone https://github.com/lawnnanny/LawnNannyWeb.git
           - run:
               name: update-npm
-              command: 'sudo npm install -g npm@latest'
+              command: |
+               sudo npm install -g npm@latest
           - run:
               name: Install Dependencies
               command: |
-                cd TerraWeb
+                cd LawnNannyWeb
                 npm install --only=dev
                 npm install
           - run:
               name: Added domainRequests.json
               command: |
-                touch ./TerraWeb/src/domainRequests.json
-                echo "{}" >> ./TerraWeb/src/domainRequests.json
+                touch ./LawnNannyWeb/src/domainRequests.json
+                echo "{}" >> ./LawnNannyWeb/src/domainRequests.json
           - run:
               name: Unit Tests For React
               command: |
-                cd TerraWeb && npm run test
+                cd LawnNannyWeb && npm run test
           - run:
               name: Build React
               command: |
-                cd TerraWeb && npm run build
+                cd LawnNannyWeb && npm run build
           - run:
               name: Install AWS CLI
               command: |
                 sudo apt-get -y -qq install awscli
           - run:
-              name: Configure AWS CLI to Run as Admin
+              name: Configure AWS Config
               command: |
-                  aws configure set aws_access_key_id $adminAccessKey
-                  aws configure set aws_secret_access_key $adminSecretAccessKey
-                  aws configure set default.region us-east-1
+                ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
+              no_output_timeout: 30m
           - run:
               name: Ship Build File To S3 Bucket
               command: |
-                 cd TerraWeb && aws s3 mv ./build s3://${BucketName} --recursive --acl public-read-write
+               cd LawnNannyWeb
+               aws s3 mv ./build s3://${FrontendDeploymentS3} --recursive --acl public-read-write
+
+  deploy_ecs_api_lambda_infra:
+      working_directory: ~/app
+      docker:
+          - image: circleci/build-image:ubuntu-14.04-XXL-upstart-1189-5614f37
+      environment:
+          SBT_VERSION: 1.0.4
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: |
+              sudo apt install python-pip
+              sudo apt-get install -y curl
+              sudo apt-get update
+              sudo pip install awscli
+        - run:
+            name: Configure AWS CLI To Run As Admin Role
+            command: |
+              ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
+        - run:
+            name: Deploy API stack
+            command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --capabilities CAPABILITY_IAM --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}
+            no_output_timeout: 30m
 
   deploy_ecs_api_lambdas:
       working_directory: ~/app
@@ -82,6 +108,10 @@ jobs:
           SBT_VERSION: 1.0.4
       steps:
           - checkout
+          - run:
+              name: Create S3 Bucket For Code
+              command: |
+                ./createLambdaBucket.sh $LambdaS3BucketName
           - run:
               name: Get sbt binary
               command: |
@@ -100,54 +130,51 @@ jobs:
           - run:
               name: Checkout The Correct Branch
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 git checkout ${gitBranch}
           - run:
               name: Add AWS.json config file
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 JSON_STRING='{"AWS_ACCESS_KEY":"'"$AWS_ACCESS_KEY"'","SECRET_AWS_ACCESS_KEY":"'"$SECRET_AWS_ACCESS_KEY"'","REGION":"'"$REGION"'"}'
                 echo "" > ./src/main/resources/AWS.json
                 echo $JSON_STRING > src/main/resources/AWS.json
           - run:
               name: Add UserSessionConfig.json config file
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 JSON_STRING='{"EXPIRATION_FOR_SESSION": '${EXPIRATION_FOR_SESSION}',"SECRET_KEY":"'"$SECRET_KEY"'"}'
                 echo "" > ./src/main/resources/UserSessionConfig.json
                 echo $JSON_STRING > src/main/resources/UserSessionConfig.json
           - run:
               name: Assemble The Jar
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
                 sbt assembly
           - run:
               name: Configure AWS CLI To Run As Admin Role
               command: |
-                aws configure set aws_access_key_id $adminAccessKey
-                aws configure set aws_secret_access_key $adminSecretAccessKey
-                aws configure set default.region us-east-1
+                ./configureAwsConfig.sh $adminAccessKey $adminSecretAccessKey
           - run:
               name: Ship Jar to S3 Bucket
               command: |
-                cd TerraAPI
+                cd LawnnannyRegistrationLoginAPI
+                echo $LambdaS3BucketName
                 aws s3 mv ./target/scala-2.12/lambda.jar s3://${LambdaS3BucketName} --acl public-read-write
           - run:
-              name: Deploy API stack
-              command: aws cloudformation deploy --template-file cloudFormationLambda.yaml --capabilities CAPABILITY_IAM --stack-name APIStack --no-fail-on-empty-changeset --parameter-overrides LambdaS3BucketName=${LambdaS3BucketName}
-              no_output_timeout: 30m
-          - run:
               name: Create custom domain name if necessary
-              command: ./createCustomDomainName.sh lawnnanny.com. lambddas.lawnnanny.com lambddas.lawnnanny.com
+              command: |
+                ./createCustomDomainName.sh lawnnanny.com. lambddas.lawnnanny.com lambddas.lawnnanny.com
               no_output_timeout: 30m
 workflows:
     version: 2
     build_and_test:
         jobs:
-            - deploy_aws_cloud_formation
-            - deploy_react_to_cloud_front:
+            - deploy_front_end_infra
+            - deploy_ecs_api_lambdas
+            - deploy_code_react_to_cloud_front:
                 requires:
-                    - deploy_aws_cloud_formation
-            - deploy_ecs_api_lambdas:
+                  - deploy_front_end_infra
+            - deploy_ecs_api_lambda_infra:
                 requires:
-                    - deploy_aws_cloud_formation
+                    - deploy_ecs_api_lambdas

@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Lawn Nanny Frontend Stack
+Parameters:
+    BucketNameOfFrontendDeployment:
+      Type: String
+    DomainName:
+      Type: String
+    HostedZoneId:
+      Type: String
+    AcmCertificate:
+      Type: String
+Resources:
+    LawnNannyWebS3:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: !Ref BucketNameOfFrontendDeployment
+            AccessControl: PublicRead
+    CloudFrontOriginAccessIdentity:
+        Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+        Properties:
+             CloudFrontOriginAccessIdentityConfig:
+                 Comment: Cloud Front Origin Access
+    AliasRecordsForDomainToCloudFront:
+      Type: AWS::Route53::RecordSetGroup
+      Properties:
+        Comment: Points a domain name to cloudfront
+        HostedZoneId: !Ref HostedZoneId
+        RecordSets:
+          - Name: !Ref DomainName
+            Type: A
+            AliasTarget:
+              DNSName: !GetAtt [CloudFront, DomainName]
+              HostedZoneId: Z2FDTNDATAQYW2
+    CloudFront:
+        Type: AWS::CloudFront::Distribution
+        Properties:
+            DistributionConfig:
+                Aliases:
+                  -
+                     !Ref DomainName
+                Enabled: 'true'
+                HttpVersion: http2
+                DefaultRootObject: index.html
+                CustomErrorResponses:
+                  - ErrorCode: 404
+                    ResponseCode: 200
+                    ResponsePagePath: /index.html
+                ViewerCertificate:
+                  AcmCertificateArn: !Ref AcmCertificate
+                  SslSupportMethod: sni-only
+                  MinimumProtocolVersion: TLSv1
+                DefaultCacheBehavior:
+                  TargetOriginId: S3-Website-lawnnannywebs3bucket.s3-website-us-east-1.amazonaws.com
+                  ViewerProtocolPolicy: redirect-to-https
+                  ForwardedValues:
+                      QueryString: true
+                Origins:
+                - DomainName: !GetAtt [LawnNannyWebS3, DomainName]
+                  Id: S3-Website-lawnnannywebs3bucket.s3-website-us-east-1.amazonaws.com
+                  S3OriginConfig:
+                      OriginAccessIdentity: !Sub
+                        - origin-access-identity/cloudfront/${IDOfOriginAccessIdentity}
+                        - { IDOfOriginAccessIdentity: !Ref CloudFrontOriginAccessIdentity }
